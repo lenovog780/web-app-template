@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
+import { Container } from 'reactstrap';
+import NavMenu from '../../components/UI/NavMenu/NavMenu';
 
 class Layout extends Component {
     render() {
         return (
-            <React.Fragment>
-                <main>
+            <div>
+                <NavMenu />
+                <Container>
                     {this.props.children}
-                </main>
-            </React.Fragment>
+                </Container>
+            </div>
         );
     }
 }

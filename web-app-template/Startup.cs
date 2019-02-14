@@ -1,4 +1,5 @@
 using AspNetCore.Firebase.Authentication.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace web_app_template
 {
@@ -29,7 +32,24 @@ namespace web_app_template
                 configuration.RootPath = "ClientApp/build";
             });
 
-            services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"], Configuration["FirebaseAuthentication:Audience"]);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+             {
+                 options.Authority = Configuration["FirebaseAuthentication:Issuer"];
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuer = true,
+                     ValidIssuer = Configuration["FirebaseAuthentication:Issuer"],
+                     ValidateAudience = true,
+                     ValidAudience = Configuration["FirebaseAuthentication:Audience"],
+                     ValidateLifetime = true
+                 };
+             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +69,7 @@ namespace web_app_template
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
@@ -66,8 +87,6 @@ namespace web_app_template
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
-
-            app.UseAuthentication();
         }
     }
 }
