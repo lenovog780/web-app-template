@@ -40,8 +40,8 @@ namespace web_app_template
 
         public static IWebHost BuildHost(string serverBindingUrl, string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            .UseContentRoot(Directory.GetCurrentDirectory())
-            .UseUrls(serverBindingUrl)
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseUrls(serverBindingUrl)
                 .UseStartup<Startup>()
                 .Build();
     }

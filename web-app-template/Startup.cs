@@ -2,18 +2,24 @@ using AspNetCore.Firebase.Authentication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 using System.Text;
 using web_app_template.Database;
 using web_app_template.Database.Models;
+using web_app_template.Middleware;
+using web_app_template.Services.Email;
 
 namespace web_app_template
 {
@@ -66,6 +72,9 @@ namespace web_app_template
                 };
             });
 
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<EmailSenderOptions>(Configuration.GetSection("Email"));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
             .AddJsonOptions(options =>
             {
@@ -76,11 +85,12 @@ namespace web_app_template
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -88,19 +98,7 @@ namespace web_app_template
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
-            app.UseAuthentication();
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-            });
-
+            
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "ClientApp";
@@ -110,6 +108,29 @@ namespace web_app_template
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+            // If not requesting /api*, rewrite to / so SPA app will be returned
+            app.UseSpaFallback(new SpaFallbackOptions()
+            {
+                ApiPathPrefix = "/api",
+                RewritePath = "/"
+            });
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+            app.UseHttpsRedirection();
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                // Read and use headers coming from reverse proxy: X-Forwarded-For X-Forwarded-Proto
+                // This is particularly important so that HttpContet.Request.Scheme will be correct behind a SSL terminating proxy
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                ForwardedHeaders.XForwardedProto
+            });
+
+            app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }
