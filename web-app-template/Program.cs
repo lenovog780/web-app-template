@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using web_app_template.Database;
 
 namespace web_app_template
 {
@@ -14,11 +15,34 @@ namespace web_app_template
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var config = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile("appsettings.json")
+                 .Build();
+
+            var host = BuildHost(config["serverBindingUrl"], args);
+
+            using (var scope = host.Services.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<IAppDbContextInitializer>();
+                var env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+                // Apply any pending migrations
+                dbInitializer.Migrate();
+                if (env.IsDevelopment())
+                {
+                    // Seed the database in development mode
+                    dbInitializer.Seed().GetAwaiter().GetResult();
+                }
+            }
+
+            host.Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        public static IWebHost BuildHost(string serverBindingUrl, string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            .UseContentRoot(Directory.GetCurrentDirectory())
+            .UseUrls(serverBindingUrl)
+                .UseStartup<Startup>()
+                .Build();
     }
 }

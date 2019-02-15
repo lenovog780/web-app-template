@@ -3,12 +3,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
 using System.Text;
+using web_app_template.Database;
+using web_app_template.Database.Models;
 
 namespace web_app_template
 {
@@ -24,7 +29,18 @@ namespace web_app_template
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddEntityFrameworkNpgsql().AddDbContext<DbContext>(options =>
+            {
+                options.UseNpgsql(Configuration.GetConnectionString("defaultConnection"));
+            });
+
+            // Configure Entity Framework Initializer for seeding
+            services.AddTransient<IAppDbContextInitializer, AppDbContextInitializer>();
+
+            // Configure Entity Framework Identity for Auth
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -38,17 +54,24 @@ namespace web_app_template
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
-             {
-                 options.Authority = Configuration["FirebaseAuthentication:Issuer"];
-                 options.TokenValidationParameters = new TokenValidationParameters
-                 {
-                     ValidateIssuer = true,
-                     ValidIssuer = Configuration["FirebaseAuthentication:Issuer"],
-                     ValidateAudience = true,
-                     ValidAudience = Configuration["FirebaseAuthentication:Audience"],
-                     ValidateLifetime = true
-                 };
-             });
+            {
+                options.Authority = Configuration["FirebaseAuthentication:Issuer"];
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = Configuration["FirebaseAuthentication:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["FirebaseAuthentication:Audience"],
+                    ValidateLifetime = true
+                };
+            });
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
 
         }
 
