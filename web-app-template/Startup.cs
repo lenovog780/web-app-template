@@ -29,7 +29,7 @@ namespace web_app_template
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkNpgsql().AddDbContext<DbContext>(options =>
+            services.AddEntityFrameworkNpgsql().AddDbContext<AppDbContext>(options =>
             {
                 options.UseNpgsql(Configuration.GetConnectionString("defaultConnection"));
             });
