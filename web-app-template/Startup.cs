@@ -1,4 +1,3 @@
-using AspNetCore.Firebase.Authentication.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using web_app_template.Database;
 using web_app_template.Database.Models;
+using web_app_template.Extensions;
 using web_app_template.Middleware;
 using web_app_template.Services.Email;
 
@@ -54,24 +54,8 @@ namespace web_app_template
                 configuration.RootPath = "ClientApp/build";
             });
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.Authority = Configuration["FirebaseAuthentication:Issuer"];
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = Configuration["FirebaseAuthentication:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = Configuration["FirebaseAuthentication:Audience"],
-                    ValidateLifetime = true
-                };
-            });
-
+            services.AddFirebaseAuthentication(Configuration["FirebaseAuthentication:Issuer"], Configuration["FirebaseAuthentication:Audience"]);
+            
             services.AddTransient<IEmailSender, EmailSender>();
             services.Configure<EmailSenderOptions>(Configuration.GetSection("Email"));
 
@@ -85,7 +69,7 @@ namespace web_app_template
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -98,23 +82,6 @@ namespace web_app_template
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
-
-            // If not requesting /api*, rewrite to / so SPA app will be returned
-            app.UseSpaFallback(new SpaFallbackOptions()
-            {
-                ApiPathPrefix = "/api",
-                RewritePath = "/"
-            });
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -131,6 +98,23 @@ namespace web_app_template
 
             app.UseAuthentication();
             app.UseMvc();
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
+            });
+
+            // If not requesting /api*, rewrite to / so SPA app will be returned
+            app.UseSpaFallback(new SpaFallbackOptions()
+            {
+                ApiPathPrefix = "/api",
+                RewritePath = "/"
+            });
         }
     }
 }

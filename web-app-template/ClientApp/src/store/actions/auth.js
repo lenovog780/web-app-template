@@ -57,30 +57,14 @@ export const autoLogin = () => {
 
 export const authenticate = (payload) => {
     return dispatch => {
-        dispatch(authStart());
-        const authData = {
-            email: payload.login,
-            password: payload.password,
-            returnSecureToken: true
+        const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
+        const userAuthObj = {
+            token: payload.ra,
+            userId: payload.email,
+            expirationDate: expirationDate
         };
+        AuthStore.setUserAuthObj(userAuthObj);
 
-        let url = 'verifyPassword?key=' + config.apiKey;
-
-        axios.post(url, authData)
-            .then(response => {
-                const expirationDate = new Date(new Date().getTime() + response.data.expiresIn * 1000);
-                const userAuthObj = {
-                    token: response.data.idToken,
-                    userId: response.data.localId,
-                    expirationDate: expirationDate
-                };
-                AuthStore.setUserAuthObj(userAuthObj);
-
-                dispatch(authSuccess(userAuthObj));
-                dispatch(setAuthTimeout(response.data.expiresIn));
-            })
-            .catch(err => {
-                dispatch(authFail(err.response.data.error));
-            });
+        dispatch(authSuccess(userAuthObj));
     };
 };
