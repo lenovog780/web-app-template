@@ -33,7 +33,6 @@ export const getDataWithAuthorization = (payload) => {
                 dispatch(getDataSuccess(response.data));
             })
             .catch(err => {
-                console.log(err);
                 dispatch(getDataFail(err.response.status));
             });
     };

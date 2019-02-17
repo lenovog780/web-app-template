@@ -43,11 +43,6 @@ namespace web_app_template
             // Configure Entity Framework Initializer for seeding
             services.AddTransient<IAppDbContextInitializer, AppDbContextInitializer>();
 
-            // Configure Entity Framework Identity for Auth
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
-
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

@@ -1,5 +1,5 @@
 const auth = {
-    STORAGE_KEY: "USER_AUTH",
+    STORAGE_KEY: "app:activeUser",
 
     getToken: () => {
         var getUserAuthObj = auth.getUserAuthObj();

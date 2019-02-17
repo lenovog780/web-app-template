@@ -1,5 +1,5 @@
 export {
-    authenticate,
+    authStateChanged,
     autoLogin,
     logout
 } from './auth';

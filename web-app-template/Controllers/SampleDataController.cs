@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace web_app_template.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class SampleDataController : Controller
     {
@@ -15,7 +16,6 @@ namespace web_app_template.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        [Authorize]
         [HttpPost("~/api/data/getData")]
         [Produces("application/json")]
         public IEnumerable<WeatherForecast> WeatherForecasts(int startDateIndex)

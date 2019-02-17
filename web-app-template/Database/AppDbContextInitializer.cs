@@ -11,14 +11,10 @@ namespace web_app_template.Database
     public class AppDbContextInitializer : IAppDbContextInitializer
     {
         private readonly AppDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppDbContextInitializer(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AppDbContextInitializer(AppDbContext context)
         {
-            _userManager = userManager;
             _context = context;
-            _roleManager = roleManager;
         }
 
         public bool EnsureCreated()
@@ -34,19 +30,19 @@ namespace web_app_template.Database
         public async Task Seed()
         {
             var email = "user@test.com";
-            if (await _userManager.FindByEmailAsync(email) == null)
+            if (await _context.ApplicationUsers.SingleOrDefaultAsync(x => x.Email == email) == null)
             {
                 var user = new ApplicationUser
                 {
-                    UserName = email,
+                    UId = "test",
                     Email = email,
-                    EmailConfirmed = true,
-                    GivenName = "John Doe"
+                    DisplayName = "John Doe",
+                    Provider = "test"
                 };
 
-                await _userManager.CreateAsync(user, "P2ssw0rd!");
+                await _context.ApplicationUsers.AddAsync(user);
             }
-            
+
             _context.SaveChanges();
         }
     }

@@ -1,7 +1,7 @@
-import axios from '../../axios/axios-auth';
-import * as config from '../../axios/config';
-import * as actionTypes from './actionTypes';
+import firebaseAuth from '../../firebase/firebase-auth';
+import axios from '../../axios/axios-fetch-data';
 import AuthStore from '../localStorage/auth';
+import * as actionTypes from './actionTypes';
 
 export const authStart = () => {
     return {
@@ -13,7 +13,11 @@ export const authSuccess = (payload) => {
     return {
         type: actionTypes.AUTH_SUCCESS,
         token: payload.token,
-        userId: payload.userId
+        userId: payload.userId,
+        userName: payload.userName,
+        userEmail: payload.userEmail,
+        userPhoto: payload.userPhoto,
+        provider: payload.provider
     };
 };
 
@@ -24,28 +28,67 @@ export const authFail = (error) => {
     };
 };
 
-export const logout = () => {
-    AuthStore.removeUserAuthObj();
-    return {
-        type: actionTypes.AUTH_LOGOUT
-    };
-};
-
-export const setAuthTimeout = (expirationTime) => {
+export const setAuthTimeout = (expirationDate) => {
     return dispatch => {
         setTimeout(() => {
             dispatch(logout());
-        }, expirationTime * 1000);
+        }, expirationDate.getTime() - new Date().getTime());
     };
+};
+
+export const authStateChanged = () => {
+    return dispatch => {
+        firebaseAuth.auth().onAuthStateChanged(user => {
+            if (user) {
+                user.getIdTokenResult()
+                    .then(response => {
+                        const userAuthObj = {
+                            token: response.token,
+                            expirationDate: new Date(response.expirationTime),
+                            userId: user.uid,
+                            userName: user.displayName ? user.displayName : user.email,
+                            userEmail: user.email,
+                            userPhoto: user.photoURL,
+                            provider: response.signInProvider === "password" ? "email" : response.signInProvider
+                        };
+                        AuthStore.setUserAuthObj(userAuthObj);
+                        dispatch(authSuccess(userAuthObj));
+                        dispatch(storeUser(userAuthObj));
+                    }).catch(err => {
+                        dispatch(authFail(err));
+                    });
+
+            } else {
+                dispatch(logout());
+            }
+        });
+    }
+};
+
+const storeUser = (userAuthObj) => {
+    axios.post('/api/user/storeUser',
+        {
+            UId: userAuthObj.userId,
+            DisplayName: userAuthObj.userName,
+            Email: userAuthObj.userEmail,
+            Provider: userAuthObj.provider
+        })
+        .then(() => {
+
+        })
+        .catch(err => {
+
+        });
 };
 
 export const autoLogin = () => {
     return dispatch => {
         const userAuthObj = AuthStore.getUserAuthObj();
         if (userAuthObj) {
-            if (new Date(userAuthObj.expirationDate) > new Date()) {
+            const expisrationDate = new Date(userAuthObj.expirationDate);
+            if (expisrationDate > new Date()) {
                 dispatch(authSuccess(userAuthObj));
-                dispatch(setAuthTimeout((new Date(userAuthObj.expirationDate).getTime() - new Date().getTime()) / 1000));
+                dispatch(setAuthTimeout(expisrationDate));
             } else {
                 dispatch(logout());
             }
@@ -55,16 +98,17 @@ export const autoLogin = () => {
     };
 };
 
-export const authenticate = (payload) => {
-    return dispatch => {
-        const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        const userAuthObj = {
-            token: payload.ra,
-            userId: payload.email,
-            expirationDate: expirationDate
-        };
-        AuthStore.setUserAuthObj(userAuthObj);
+export const logout = () => {
+    AuthStore.removeUserAuthObj();
 
-        dispatch(authSuccess(userAuthObj));
+    firebaseAuth.auth().signOut()
+        .then(() => {
+            // Sign-out successful.
+        }).catch(err => {
+            // An error happened.
+        });
+
+    return {
+        type: actionTypes.AUTH_LOGOUT
     };
 };

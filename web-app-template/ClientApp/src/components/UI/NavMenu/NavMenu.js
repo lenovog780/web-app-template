@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 
 import './NavMenu.module.css';
 
+import UserDetails from '../UserDetails/UserDetails';
+
 class NavMenu extends React.Component {
     constructor(props) {
         super(props);
@@ -57,6 +59,7 @@ class NavMenu extends React.Component {
                         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={this.state.isOpen} navbar>
                             {navItems}
                         </Collapse>
+                        {this.props.isAuth ? <UserDetails source={this.props.userPhoto} /> : null}
                     </Container>
                 </Navbar>
             </header>
@@ -66,7 +69,8 @@ class NavMenu extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        isAuth: state.auth.token !== null
+        isAuth: state.auth.token !== null,
+        userPhoto: state.auth.userPhoto
     };
 };
 
