@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import Button from '../../components/UI/Button/Button';
 import firebase from 'firebase';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
+import classes from './Auth.module.css';
 import * as actions from '../../store/actions/index';
 
 class Auth extends Component {
@@ -26,11 +28,21 @@ class Auth extends Component {
         this.props.onAuthStateChanged();
     }
 
+    onRegisterClickHandler = () => {
+        this.props.history.push('/register');
+    }
+
     render() {
         return (
-            <StyledFirebaseAuth
-                uiConfig={this.state.uiConfig}
-                firebaseAuth={firebase.auth()} />
+            <React.Fragment>
+                <StyledFirebaseAuth
+                    uiConfig={this.state.uiConfig}
+                    firebaseAuth={firebase.auth()} />
+                <div className={classes.Auth}>
+                    <p>Create account with email</p>
+                    <Button type="Success" clicked={this.onRegisterClickHandler}>CREATE NEW ACCOUNT</Button>
+                </div>
+            </React.Fragment>
         );
     }
 }

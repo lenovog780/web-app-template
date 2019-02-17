@@ -5,14 +5,21 @@ import asyncComponent from './hoc/asyncComponent/asyncComponent';
 import * as actions from './store/actions/index';
 
 import Layout from './hoc/Layout/Layout';
-import AuthorizationTest from './containers/AuthorizationTest/AuthorizationTest';
 
 const asyncAuth = asyncComponent(() => {
   return import('./containers/Auth/Auth');
 });
 
+const asyncRegister = asyncComponent(() => {
+  return import('./containers/Auth/Register/Register');
+});
+
 const asyncLogout = asyncComponent(() => {
   return import('./containers/Auth/Logout/Logout');
+});
+
+const asyncAuthorizationTest = asyncComponent(() => {
+  return import('./containers/AuthorizationTest/AuthorizationTest');
 });
 
 
@@ -26,6 +33,7 @@ class App extends Component {
     let routes = (
       <Switch>
         <Route path="/auth" component={asyncAuth} />
+        <Route path="/register" component={asyncRegister} />
         <Route path="/" exact />
         <Redirect to="/" />
       </Switch>
@@ -35,7 +43,7 @@ class App extends Component {
       routes = (
         <Switch>
           <Route path="/logout" component={asyncLogout} />
-          <Route path="/fetch-data" component={AuthorizationTest} />
+          <Route path="/fetch-data" component={asyncAuthorizationTest} />
           <Route path="/" exact />
           <Redirect to="/" />
         </Switch>
