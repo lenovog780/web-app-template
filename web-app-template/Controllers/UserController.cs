@@ -23,22 +23,6 @@ namespace web_app_template.Controllers
             _context = context;
         }
 
-        [HttpPost("~/api/user/checkUid")]
-        [Produces("application/json")]
-        public async Task<IActionResult> Post(string uid)
-        {
-            try
-            {
-                
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-
-            return Ok(new { UidExists = true });
-        }
-
         [HttpPost("~/api/user/storeUser")]
         [Produces("application/json")]
         public async Task<IActionResult> Put([FromBody]ApplicationUser model)
