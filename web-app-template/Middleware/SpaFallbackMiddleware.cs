@@ -45,7 +45,7 @@ namespace web_app_template.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            _logger.LogCritical("Handling request: " + context.Request.Path);
+            _logger.LogInformation("Handling request: " + context.Request.Path);
 
             // If request path starts with _apiPathPrefix and the path does not have an extension (i.e. .css, .js, .png)
             if (!context.Request.Path.Value.StartsWith(_options.ApiPathPrefix) && !context.Request.Path.Value.Contains("."))
