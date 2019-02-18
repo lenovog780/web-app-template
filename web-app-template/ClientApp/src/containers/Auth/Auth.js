@@ -33,15 +33,23 @@ class Auth extends Component {
     }
 
     render() {
+
+        let register = null;
+
+        if (this.props.loading === false) {
+            register = (
+                <div className={classes.Auth}>
+                    <Button type="Success" clicked={this.onRegisterClickHandler}>CREATE NEW ACCOUNT</Button>
+                </div>
+            );
+        }
+
         return (
             <React.Fragment>
                 <StyledFirebaseAuth
                     uiConfig={this.state.uiConfig}
                     firebaseAuth={firebase.auth()} />
-                <div className={classes.Auth}>
-                    <p>Create account with email</p>
-                    <Button type="Success" clicked={this.onRegisterClickHandler}>CREATE NEW ACCOUNT</Button>
-                </div>
+                {register}
             </React.Fragment>
         );
     }

@@ -44,6 +44,7 @@ const authLogout = (state, action) => {
         userName: null,
         userEmail: null,
         error: null,
+        loading: false
     });
 };
 

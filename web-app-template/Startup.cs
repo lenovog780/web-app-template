@@ -94,21 +94,20 @@ namespace web_app_template
             app.UseAuthentication();
             app.UseMvc();
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
-
             // If not requesting /api*, rewrite to / so SPA app will be returned
             app.UseSpaFallback(new SpaFallbackOptions()
             {
                 ApiPathPrefix = "/api",
                 RewritePath = "/"
+            });
+
+            app.UseSpa(spa =>
+            {
+                if (env.IsDevelopment())
+                {
+                    spa.Options.SourcePath = "ClientApp";
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
             });
         }
     }

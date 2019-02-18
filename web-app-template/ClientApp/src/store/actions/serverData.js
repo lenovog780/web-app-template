@@ -28,7 +28,7 @@ export const getDataWithAuthorization = (payload) => {
 
         dispatch(getData(payload.startDateIndex));
 
-        axios.post('/api/data/getData?startDateIndex=' + payload.startDateIndex)
+        axios.post('api/data/getData?startDateIndex=' + payload.startDateIndex)
             .then(response => {
                 dispatch(getDataSuccess(response.data));
             })

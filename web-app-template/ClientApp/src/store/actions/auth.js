@@ -38,6 +38,7 @@ export const setAuthTimeout = (expirationDate) => {
 
 export const authStateChanged = () => {
     return dispatch => {
+        dispatch(authStart());
         firebaseAuth.auth().onAuthStateChanged(user => {
             if (user) {
                 user.getIdTokenResult()
