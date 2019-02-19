@@ -5,6 +5,7 @@ import asyncComponent from './hoc/asyncComponent/asyncComponent';
 import * as actions from './store/actions/index';
 
 import Layout from './hoc/Layout/Layout';
+import Ping from './containers/Ping/Ping';
 
 const asyncAuth = asyncComponent(() => {
   return import('./containers/Auth/Auth');
@@ -34,7 +35,7 @@ class App extends Component {
       <Switch>
         <Route path="/auth" component={asyncAuth} />
         <Route path="/register" component={asyncRegister} />
-        <Route path="/" exact />
+        <Route path="/" component={Ping} exact />
         <Redirect to="/" />
       </Switch>
     );
@@ -44,7 +45,7 @@ class App extends Component {
         <Switch>
           <Route path="/logout" component={asyncLogout} />
           <Route path="/fetch-data" component={asyncAuthorizationTest} />
-          <Route path="/" exact />
+          <Route path="/" component={Ping} exact />
           <Redirect to="/" />
         </Switch>
       );

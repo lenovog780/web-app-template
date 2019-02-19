@@ -9,3 +9,6 @@ export {
 export {
     getDataWithAuthorization
 } from './serverData';
+export {
+    getDataWithoutAuthorization
+} from './ping';

@@ -54,6 +54,7 @@ export const authStateChanged = () => {
                         };
                         AuthStore.setUserAuthObj(userAuthObj);
                         dispatch(authSuccess(userAuthObj));
+                        dispatch(setAuthTimeout(new Date(response.expirationTime)));
                         dispatch(storeUser(userAuthObj));
                     }).catch(err => {
                         dispatch(authFail(err));

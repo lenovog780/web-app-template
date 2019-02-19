@@ -1,0 +1,8 @@
+.Ping {
+    display: flex;
+}
+
+.Ping > p {
+    padding: 10px;
+    margin: 10px;
+}

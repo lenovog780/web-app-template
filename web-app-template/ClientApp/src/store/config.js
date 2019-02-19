@@ -5,12 +5,14 @@ import { routerReducer } from 'react-router-redux';
 import authReducer from './reducers/auth';
 import registerReducer from './reducers/register';
 import serverDataReducer from './reducers/serverData';
+import pingReducer from './reducers/ping';
 
 const configureStore = () => {
   const reducers = {
     auth: authReducer,
     register: registerReducer,
-    serverData: serverDataReducer
+    serverData: serverDataReducer,
+    ping: pingReducer
   };
 
   const middleware = [

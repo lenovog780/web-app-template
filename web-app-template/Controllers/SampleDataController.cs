@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace web_app_template.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
+    [EnableCors("AllowAllOrigins")]
     public class SampleDataController : Controller
     {
         private static string[] Summaries = new[]
@@ -16,6 +17,17 @@ namespace web_app_template.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
+        [HttpPost("~/api/data/ping")]
+        [Produces("application/json")]
+        public IActionResult Ping()
+        {
+            return Ok(new
+            {
+                Test = "ok"
+            });
+        }
+
+        [Authorize]
         [HttpPost("~/api/data/getData")]
         [Produces("application/json")]
         public IEnumerable<WeatherForecast> WeatherForecasts(int startDateIndex)
