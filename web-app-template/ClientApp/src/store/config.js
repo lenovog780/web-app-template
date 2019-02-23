@@ -19,7 +19,10 @@ const configureStore = () => {
     thunk
   ];
 
-  const composeEnhancers = process.env.NODE_ENV === 'development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null || compose;
+  let composeEnhancers = compose;
+  if (process.env.NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+    composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+  }
 
   const rootReducer = combineReducers({
     ...reducers,
