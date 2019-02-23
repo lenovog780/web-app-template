@@ -109,14 +109,14 @@ namespace web_app_template
                 RewritePath = "/"
             });
 
-            app.UseSpa(spa =>
-            {
-                //if (env.IsDevelopment())
-                //{
-                //    spa.Options.SourcePath = "ClientApp";
-                //    spa.UseReactDevelopmentServer(npmScript: "start");
-                //}
-            });
+            //app.UseSpa(spa =>
+            //{
+            //    if (env.IsDevelopment())
+            //    {
+            //        spa.Options.SourcePath = "ClientApp";
+            //        spa.UseReactDevelopmentServer(npmScript: "start");
+            //    }
+            //});
 
             app.UseCors("AllowAllOrigins");
         }

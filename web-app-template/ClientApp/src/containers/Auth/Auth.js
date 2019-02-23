@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from '../../components/UI/Button/Button';
-import firebase from 'firebase';
+import firebaseAuth from '../../firebase/firebase-auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 import classes from './Auth.module.css';
@@ -13,10 +13,10 @@ class Auth extends Component {
         uiConfig: {
             signInFlow: "popup",
             signInOptions: [
-                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-                firebase.auth.GithubAuthProvider.PROVIDER_ID,
-                firebase.auth.EmailAuthProvider.PROVIDER_ID
+                firebaseAuth.auth.GoogleAuthProvider.PROVIDER_ID,
+                firebaseAuth.auth.FacebookAuthProvider.PROVIDER_ID,
+                firebaseAuth.auth.GithubAuthProvider.PROVIDER_ID,
+                firebaseAuth.auth.EmailAuthProvider.PROVIDER_ID
             ],
             callbacks: {
                 signInSuccess: () => false
@@ -48,7 +48,7 @@ class Auth extends Component {
             <React.Fragment>
                 <StyledFirebaseAuth
                     uiConfig={this.state.uiConfig}
-                    firebaseAuth={firebase.auth()} />
+                    firebaseAuth={firebaseAuth.auth()} />
                 {register}
             </React.Fragment>
         );
